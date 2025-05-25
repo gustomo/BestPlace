@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     textAlign: 'center',
-    padding: 8,
+    padding: 9,
     fontSize: 14,
     color: '#000',
   },
