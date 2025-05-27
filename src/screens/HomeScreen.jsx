@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,11 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { SearchNormal } from 'iconsax-react-native';
 import { colors, fontType } from '../theme';
+import { BlogList } from '../data';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -19,7 +21,12 @@ export default function HomeScreen() {
   const [search, setSearch] = useState('');
   const navigation = useNavigation();
 
-  const places = ['Bali', 'Yogyakarta', 'Labuan Bajo'];
+  // Filter tempat berdasarkan kata kunci pencarian
+  const filteredPlaces = useMemo(() => {
+    return BlogList.filter(blog =>
+      blog.title.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [search]);
 
   return (
     <ScrollView style={styles.container}>
@@ -47,22 +54,23 @@ export default function HomeScreen() {
         <Text style={styles.favoriteText}>❤️ Lihat Tempat Favorit</Text>
       </Pressable>
 
-      <Text style={styles.sectionTitle}>🌟 Rekomendasi Populer</Text>
+      <Text style={styles.sectionTitle}>🌟 Rekomendasi</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-        {places.map((place, idx) => (
-          <Pressable
-            key={idx}
-            style={styles.card}
-            onPress={() => navigation.navigate('Detail', { place })}
-          >
-            <Image
-              style={styles.image}
-              source={{ uri: `https://source.unsplash.com/400x300/?${place}` }}
-            />
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>{place}</Text>
-            </View>
-          </Pressable>
+        {filteredPlaces.map((item, idx) => (
+          <Animated.View entering={FadeInUp.delay(idx * 100)} key={item.id}>
+            <Pressable
+              style={styles.card}
+              onPress={() => navigation.navigate('Detail', { place: item.title })}
+            >
+              <Image
+                style={styles.image}
+                source={{ uri: item.image }}
+              />
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>{item.title}</Text>
+              </View>
+            </Pressable>
+          </Animated.View>
         ))}
       </ScrollView>
     </ScrollView>
