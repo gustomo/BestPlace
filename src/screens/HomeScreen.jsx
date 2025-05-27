@@ -7,10 +7,13 @@ import {
   ScrollView,
   StyleSheet,
   Image,
+  Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SearchNormal } from 'iconsax-react-native';
 import { colors, fontType } from '../theme';
+
+const screenWidth = Dimensions.get('window').width;
 
 export default function HomeScreen() {
   const [search, setSearch] = useState('');
@@ -37,16 +40,15 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      {/* Tombol ke FavoriteScreen */}
       <Pressable
         onPress={() => navigation.navigate('Favorite')}
         style={styles.favoriteButton}
       >
-        <Text style={styles.favoriteText}>Lihat Tempat Favorit</Text>
+        <Text style={styles.favoriteText}>❤️ Lihat Tempat Favorit</Text>
       </Pressable>
 
-      <Text style={styles.sectionTitle}>Rekomendasi Populer</Text>
-      <ScrollView horizontal style={styles.horizontalScroll}>
+      <Text style={styles.sectionTitle}>🌟 Rekomendasi Populer</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
         {places.map((place, idx) => (
           <Pressable
             key={idx}
@@ -55,9 +57,11 @@ export default function HomeScreen() {
           >
             <Image
               style={styles.image}
-              source={{ uri: `https://source.unsplash.com/300x200/?${place}` }}
+              source={{ uri: `https://source.unsplash.com/400x300/?${place}` }}
             />
-            <Text style={styles.cardTitle}>{place}</Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>{place}</Text>
+            </View>
           </Pressable>
         ))}
       </ScrollView>
@@ -72,12 +76,13 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 24,
-    backgroundColor: colors.blue(0.1),
+    backgroundColor: colors.blue(0.05),
   },
   title: {
-    fontSize: 26,
+    fontSize: 28,
     fontFamily: fontType['Pjs-Bold'],
     color: colors.black(),
+    marginBottom: 4,
   },
   subtitle: {
     fontSize: 14,
@@ -85,11 +90,12 @@ const styles = StyleSheet.create({
     color: colors.grey(0.7),
   },
   searchContainer: {
-    margin: 24,
+    marginHorizontal: 20,
+    marginTop: 16,
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: colors.grey(0.3),
-    borderRadius: 10,
+    borderRadius: 12,
     overflow: 'hidden',
   },
   input: {
@@ -98,49 +104,59 @@ const styles = StyleSheet.create({
     backgroundColor: colors.grey(0.05),
   },
   button: {
-    width: 40,
+    width: 45,
     backgroundColor: colors.blue(),
     alignItems: 'center',
     justifyContent: 'center',
   },
   favoriteButton: {
-    marginHorizontal: 24,
-    marginBottom: 10,
-    padding: 10,
+    marginHorizontal: 20,
+    marginTop: 12,
+    padding: 12,
     backgroundColor: colors.blue(0.1),
-    borderRadius: 8,
+    borderRadius: 10,
   },
   favoriteText: {
     textAlign: 'center',
-    fontFamily: fontType['Pjs-Regular'],
+    fontFamily: fontType['Pjs-Bold'],
     color: colors.blue(),
+    fontSize: 16,
   },
   sectionTitle: {
-    marginHorizontal: 24,
-    marginBottom: 10,
-    fontSize: 18,
+    marginHorizontal: 20,
+    marginTop: 24,
+    marginBottom: 12,
+    fontSize: 20,
     fontFamily: fontType['Pjs-Bold'],
     color: colors.black(),
   },
   horizontalScroll: {
-    paddingLeft: 24,
+    paddingLeft: 20,
+    marginBottom: 24,
   },
   card: {
-    marginRight: 15,
-    width: 150,
-    borderRadius: 10,
+    marginRight: 16,
+    width: screenWidth * 0.6,
+    borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: colors.grey(0.05),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   image: {
     width: '100%',
-    height: 100,
+    height: 130,
+  },
+  cardContent: {
+    padding: 10,
   },
   cardTitle: {
-    textAlign: 'center',
-    padding: 8,
-    fontFamily: fontType['Pjs-Regular'],
-    fontSize: 14,
+    fontFamily: fontType['Pjs-Bold'],
+    fontSize: 16,
     color: colors.black(),
+    textAlign: 'center',
   },
 });
