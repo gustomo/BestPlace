@@ -1,56 +1,127 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Pressable,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import { colors, fontType } from '../theme';
-
-const favoritePlaces = ['Bali', 'Labuan Bajo'];
+import { getPlaces, deletePlace } from '../api/placeApi';
 
 export default function FavoriteScreen() {
+  const [places, setPlaces] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchPlaces = () => {
+    setLoading(true);
+    getPlaces()
+      .then(response => {
+        setPlaces(response.data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.log(error);
+        setLoading(false);
+        Alert.alert('Gagal', 'Gagal memuat data');
+      });
+  };
+
+  useEffect(() => {
+    fetchPlaces();
+  }, []);
+
+  const handleDelete = (id) => {
+    Alert.alert(
+      'Konfirmasi',
+      'Yakin ingin menghapus tempat ini?',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: () => {
+            deletePlace(id)
+              .then(() => {
+                fetchPlaces();
+              })
+              .catch(err => {
+                console.log(err);
+                Alert.alert('Gagal', 'Gagal menghapus data');
+              });
+          },
+        },
+      ]
+    );
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Text style={styles.title}>{item.title}</Text>
+      <Pressable style={styles.deleteButton} onPress={() => handleDelete(item.id)}>
+        <Text style={styles.deleteText}>Hapus</Text>
+      </Pressable>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Favoritmu</Text>
-      <FlatList
-        data={favoritePlaces}
-        keyExtractor={(item) => item}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Image
-              source={{ uri: `https://source.unsplash.com/300x200/?${item}` }}
-              style={styles.image}
-            />
-            <Text style={styles.cardTitle}>{item}</Text>
-          </View>
-        )}
-        contentContainerStyle={{ padding: 20 }}
-      />
+      <Text style={styles.header}>Tempat Favorit</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color={colors.blue()} />
+      ) : (
+        <FlatList
+          data={places}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.list}
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.white(),
     flex: 1,
+    backgroundColor: colors.white(),
+    paddingHorizontal: 16,
+    paddingTop: 20,
   },
-  title: {
-    fontSize: 22,
+  header: {
+    fontSize: 24,
     fontFamily: fontType['Pjs-Bold'],
-    margin: 20,
+    marginBottom: 16,
+    textAlign: 'center',
     color: colors.black(),
+  },
+  list: {
+    paddingBottom: 20,
   },
   card: {
-    marginBottom: 15,
+    backgroundColor: colors.grey(0.1),
     borderRadius: 10,
-    overflow: 'hidden',
-    backgroundColor: colors.grey(0.05),
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  image: {
-    width: '100%',
-    height: 150,
-  },
-  cardTitle: {
-    padding: 10,
+  title: {
+    fontFamily: fontType['Pjs-Medium'],
     fontSize: 16,
-    fontFamily: fontType['Pjs-Regular'],
     color: colors.black(),
+  },
+  deleteButton: {
+    backgroundColor: colors.red(0.8),
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+  },
+  deleteText: {
+    color: colors.white(),
+    fontFamily: fontType['Pjs-Bold'],
   },
 });

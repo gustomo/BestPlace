@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,25 +8,42 @@ import {
   StyleSheet,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { SearchNormal } from 'iconsax-react-native';
 import { colors, fontType } from '../theme';
-import { BlogList } from '../data';
+import { getPlaces } from '../api/placeApi';
 
 const screenWidth = Dimensions.get('window').width;
 
 export default function HomeScreen() {
   const [search, setSearch] = useState('');
+  const [blogList, setBlogList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
-  // Filter tempat berdasarkan kata kunci pencarian
+  useEffect(() => {
+    getPlaces()
+      .then((res) => setBlogList(res.data))
+      .catch((err) => console.log(err))
+      .finally(() => setLoading(false));
+  }, []);
+
   const filteredPlaces = useMemo(() => {
-    return BlogList.filter(blog =>
+    return blogList.filter(blog =>
       blog.title.toLowerCase().includes(search.toLowerCase())
     );
-  }, [search]);
+  }, [search, blogList]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.blue()} />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -166,5 +183,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.black(),
     textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.white(),
   },
 });
