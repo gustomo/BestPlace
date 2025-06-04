@@ -11,11 +11,33 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { colors, fontType } from '../theme';
 import { addDoc, collection, getFirestore } from '@react-native-firebase/firestore';
+// Tambahkan import notifee
+import notifee, { AndroidImportance } from '@notifee/react-native';
 
 export default function FormScreen() {
   const [title, setTitle] = useState('');
   const [image, setImage] = useState('');
   const navigation = useNavigation();
+
+  // Fungsi untuk menampilkan notifikasi lokal
+  const showNotification = async (placeTitle) => {
+    // Membuat channel notifikasi (wajib di Android)
+    const channelId = await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel',
+      importance: AndroidImportance.HIGH,
+    });
+
+    // Tampilkan notifikasi
+    await notifee.displayNotification({
+      title: 'Tempat Wisata Ditambahkan!',
+      body: `Tempat "${placeTitle}" berhasil disimpan.`,
+      android: {
+        channelId,
+        smallIcon: 'ic_launcher', // pastikan ada icon ini di android/app/src/main/res
+      },
+    });
+  };
 
   const handleSubmit = async () => {
     if (!title || !image) {
@@ -28,6 +50,10 @@ export default function FormScreen() {
     try {
       const db = getFirestore();
       await addDoc(collection(db, 'places'), newPlace);
+
+      // Tampilkan notifikasi lokal
+      await showNotification(title);
+
       Alert.alert('Sukses', 'Data berhasil ditambahkan');
       navigation.goBack();
     } catch (err) {
