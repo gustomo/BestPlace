@@ -9,24 +9,27 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { colors, fontType } from '../theme';
-import { getPlaces, deletePlace } from '../api/placeApi';
+import { getFirestore, collection, getDocs, deleteDoc, doc } from '@react-native-firebase/firestore';
 
 export default function FavoriteScreen() {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPlaces = () => {
+  const fetchPlaces = async () => {
     setLoading(true);
-    getPlaces()
-      .then(response => {
-        setPlaces(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.log(error);
-        setLoading(false);
-        Alert.alert('Gagal', 'Gagal memuat data');
+    try {
+      const db = getFirestore();
+      const querySnapshot = await getDocs(collection(db, 'places'));
+      const data = [];
+      querySnapshot.forEach((docSnap) => {
+        data.push({ id: docSnap.id, ...docSnap.data() });
       });
+      setPlaces(data);
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Gagal', 'Gagal memuat data');
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -42,15 +45,15 @@ export default function FavoriteScreen() {
         {
           text: 'Hapus',
           style: 'destructive',
-          onPress: () => {
-            deletePlace(id)
-              .then(() => {
-                fetchPlaces();
-              })
-              .catch(err => {
-                console.log(err);
-                Alert.alert('Gagal', 'Gagal menghapus data');
-              });
+          onPress: async () => {
+            try {
+              const db = getFirestore();
+              await deleteDoc(doc(db, 'places', id));
+              fetchPlaces();
+            } catch (err) {
+              console.log(err);
+              Alert.alert('Gagal', 'Gagal menghapus data');
+            }
           },
         },
       ]

@@ -14,7 +14,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { SearchNormal } from 'iconsax-react-native';
 import { colors, fontType } from '../theme';
-import { getPlaces } from '../api/placeApi';
+import { getFirestore, collection, getDocs } from '@react-native-firebase/firestore';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -24,11 +24,24 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
+  const fetchPlaces = async () => {
+    setLoading(true);
+    try {
+      const db = getFirestore();
+      const querySnapshot = await getDocs(collection(db, 'places'));
+      const data = [];
+      querySnapshot.forEach((docSnap) => {
+        data.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      setBlogList(data);
+    } catch (err) {
+      console.log(err);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    getPlaces()
-      .then((res) => setBlogList(res.data))
-      .catch((err) => console.log(err))
-      .finally(() => setLoading(false));
+    fetchPlaces();
   }, []);
 
   const filteredPlaces = useMemo(() => {

@@ -10,14 +10,14 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { colors, fontType } from '../theme';
-import { addPlace } from '../api/placeApi';
+import { addDoc, collection, getFirestore } from '@react-native-firebase/firestore';
 
 export default function FormScreen() {
   const [title, setTitle] = useState('');
   const [image, setImage] = useState('');
   const navigation = useNavigation();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!title || !image) {
       Alert.alert('Validasi', 'Mohon lengkapi semua data');
       return;
@@ -25,15 +25,15 @@ export default function FormScreen() {
 
     const newPlace = { title, image };
 
-    addPlace(newPlace)
-      .then(() => {
-        Alert.alert('Sukses', 'Data berhasil ditambahkan');
-        navigation.goBack(); // atau navigation.navigate('Home');
-      })
-      .catch(err => {
-        console.log(err);
-        Alert.alert('Error', 'Gagal menambahkan data');
-      });
+    try {
+      const db = getFirestore();
+      await addDoc(collection(db, 'places'), newPlace);
+      Alert.alert('Sukses', 'Data berhasil ditambahkan');
+      navigation.goBack();
+    } catch (err) {
+      console.log(err);
+      Alert.alert('Error', 'Gagal menambahkan data');
+    }
   };
 
   return (

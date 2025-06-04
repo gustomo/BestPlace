@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "554563310704",
+    "project_id": "bestplace-82563",
+    "storage_bucket": "bestplace-82563.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554563310704:android:09d199d1725c38300c10b5",
+        "android_client_info": {
+          "package_name": "com.bestplace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0RpNM-aZJFC3FAVhlCnc3Ldiz8KYRTq8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
